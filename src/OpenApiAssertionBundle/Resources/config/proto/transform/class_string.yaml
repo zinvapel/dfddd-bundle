@@ -1,0 +1,8 @@
+services:
+    zinvapel.open_api_assertion.proto.class_string.service:
+        class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\ClassString\Service
+        arguments:
+            - '@zinvapel.open_api_assertion.proto.class_string.transformer'
+
+    zinvapel.open_api_assertion.proto.class_string.transformer:
+        class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\ClassString\Transformer\Transformer

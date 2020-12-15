@@ -1,0 +1,26 @@
+services:
+    zinvapel.open_api_assertion.proto.assert.service:
+        class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Service
+        arguments:
+            - '@zinvapel.open_api_assertion.proto.assert.transformer'
+
+    zinvapel.open_api_assertion.proto.assert.transformer:
+        class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Transformer\FirstAcceptable
+        arguments:
+            -
+                - '@zinvapel.open_api_assertion.proto.assert.transformer.collection'
+                - '@zinvapel.open_api_assertion.proto.assert.transformer.multiple'
+                - '@zinvapel.open_api_assertion.proto.assert.transformer.with_options'
+                - '@zinvapel.open_api_assertion.proto.assert.transformer.without_options'
+
+    zinvapel.open_api_assertion.proto.assert.transformer.collection:
+        class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Transformer\Collection
+
+    zinvapel.open_api_assertion.proto.assert.transformer.multiple:
+        class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Transformer\Multiple
+
+    zinvapel.open_api_assertion.proto.assert.transformer.with_options:
+        class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Transformer\WithOptions
+
+    zinvapel.open_api_assertion.proto.assert.transformer.without_options:
+        class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Transformer\WithoutOptions
