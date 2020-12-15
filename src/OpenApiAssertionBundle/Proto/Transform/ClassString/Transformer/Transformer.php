@@ -16,6 +16,7 @@ final class Transformer implements TransformerInterface
         foreach ($protoClassDto->getProperties() as $protoPropertyDto) {
             yield from $this->createPhpDoc($protoPropertyDto);
             yield from $this->createProperty($protoPropertyDto);
+            yield PHP_EOL;
         }
 
         foreach ($protoClassDto->getProperties() as $protoPropertyDto) {
@@ -74,7 +75,7 @@ final class Transformer implements TransformerInterface
 
     private function createProperty(ProtoPropertyDto $protoPropertyDto): iterable
     {
-        yield 'private ';
+        yield "\tprivate ";
 
         if ($protoPropertyDto->isNullable()) {
             yield '?';
@@ -129,7 +130,7 @@ final class Transformer implements TransformerInterface
 
 
         yield PHP_EOL;
-        if ($protoPropertyDto->getScalarType() === 'bool') {
+        if ($protoPropertyDto->getScalarType() !== 'bool') {
             yield "\tpublic function get".ucfirst($protoPropertyDto->getName())."()";
         } else {
             yield "\tpublic function ".lcfirst($protoPropertyDto->getName())."()";

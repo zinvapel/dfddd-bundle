@@ -29,8 +29,11 @@ final class Service implements ServiceInterface
 
         foreach ($dto->getProtoClasses() as $name => $protoClass) {
             $assertions[$name] = '';
-            foreach ($this->transformer->transform($protoClass, 0) as $string) {
-                $assertions[$name] .= $string;
+
+            foreach ($protoClass->getAssertions() as $assert) {
+                foreach ($this->transformer->transform($assert, 0) as $string) {
+                    $assertions[$name] .= $string;
+                }
             }
         }
 

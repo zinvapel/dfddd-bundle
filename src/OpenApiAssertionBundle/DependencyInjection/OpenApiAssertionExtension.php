@@ -14,6 +14,7 @@ final class OpenApiAssertionExtension extends Extension
     {
         $loader = new YamlFileLoader($container, new FileLocator(\dirname(__DIR__).'/Resources/config'));
 
+        $loader->load('commands.yaml');
         $loader->load('proto/generate.yaml');
         $loader->load('proto/transform/assert.yaml');
         $loader->load('proto/transform/class_string.yaml');

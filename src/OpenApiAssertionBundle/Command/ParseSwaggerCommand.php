@@ -44,6 +44,7 @@ final class ParseSwaggerCommand extends Command
         parent::configure();
 
         $this
+            ->setName('zinvapel:oa:parse-swagger')
             ->addUsage(<<<TXT
 Usage:
 $ php bin/console <swagger.yaml> [--target <target> [--class <className>]]

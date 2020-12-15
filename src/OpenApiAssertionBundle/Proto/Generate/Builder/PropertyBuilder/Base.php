@@ -134,6 +134,9 @@ abstract class Base implements PropertyBuilderInterface
 
         if (isset($property['$ref'])) {
             $ref = $context->getSchema()->getRef($property['$ref']);
+            if ($ref->getName() !== $property['$ref']) {
+                $context = $context->withNames(new Names([$ref->getName()]));
+            }
             $property = $ref->getObject();
         }
 

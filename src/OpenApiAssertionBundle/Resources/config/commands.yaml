@@ -1,0 +1,12 @@
+services:
+    Zinvapel\Basis\OpenApiAssertionBundle\Command\ParseSwaggerCommand:
+        arguments:
+            - '@Zinvapel\Basis\OpenApiAssertionBundle\Command\ParseSwaggerCommand\Parser'
+            - '@zinvapel.open_api_assertion.proto.generate.service'
+            - '@zinvapel.open_api_assertion.proto.assert.service'
+            - '@zinvapel.open_api_assertion.proto.class_string.service'
+        tags:
+            - { name: console.command, command: zinvapel:oa:parse-swagger }
+
+    Zinvapel\Basis\OpenApiAssertionBundle\Command\ParseSwaggerCommand\Parser:
+        class: Symfony\Component\Yaml\Parser
