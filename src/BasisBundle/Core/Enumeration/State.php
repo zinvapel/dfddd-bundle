@@ -11,7 +11,7 @@ final class State extends BaseEnumeration
     public const FAIL = 'fail';
     public const EXCEPTION = 'exceptional';
 
-    protected $names = [
+    protected array $names = [
         self::SUCCESS => 'Success',
         self::FAIL => 'Fail',
         self::EXCEPTION => 'Exception',

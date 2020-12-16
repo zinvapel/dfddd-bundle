@@ -1,0 +1,12 @@
+services:
+    _defaults:
+        public: false
+        autoconfigure: false
+        autowire: true
+
+    Zinvapel\Basis\OpenApiAssertionBundle\:
+        resource: '../../'
+        exclude:
+            - 'Command'
+            - 'DependencyInjection'
+            - 'Resources'

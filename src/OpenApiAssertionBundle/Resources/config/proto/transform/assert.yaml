@@ -1,26 +1,16 @@
 services:
-    zinvapel.open_api_assertion.proto.assert.service:
-        class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Service
-        arguments:
-            - '@zinvapel.open_api_assertion.proto.assert.transformer'
+    _defaults:
+        public: false
+        autoconfigure: false
+        autowire: true
 
-    zinvapel.open_api_assertion.proto.assert.transformer:
-        class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Transformer\FirstAcceptable
+    Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Transformer\TransformerInterface:
+        alias: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Transformer\FirstAcceptable
+
+    Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Transformer\FirstAcceptable:
         arguments:
             -
-                - '@zinvapel.open_api_assertion.proto.assert.transformer.collection'
-                - '@zinvapel.open_api_assertion.proto.assert.transformer.multiple'
-                - '@zinvapel.open_api_assertion.proto.assert.transformer.with_options'
-                - '@zinvapel.open_api_assertion.proto.assert.transformer.without_options'
-
-    zinvapel.open_api_assertion.proto.assert.transformer.collection:
-        class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Transformer\Collection
-
-    zinvapel.open_api_assertion.proto.assert.transformer.multiple:
-        class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Transformer\Multiple
-
-    zinvapel.open_api_assertion.proto.assert.transformer.with_options:
-        class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Transformer\WithOptions
-
-    zinvapel.open_api_assertion.proto.assert.transformer.without_options:
-        class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Transformer\WithoutOptions
+                - '@Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Transformer\Collection'
+                - '@Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Transformer\Multiple'
+                - '@Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Transformer\WithOptions'
+                - '@Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Transformer\WithoutOptions'

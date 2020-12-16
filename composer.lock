@@ -4,24 +4,24 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fc7d0b26b00f6a8a268feacb84ea3e16",
+    "content-hash": "a8deaf69b2657508cc0ef1123ea3e138",
     "packages": [
         {
             "name": "zinvapel/enumeration",
-            "version": "0.1.1",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zinvapel/enumeration.git",
-                "reference": "1f6140ea1919dfc354a76e0949aa9327bdbc1759"
+                "reference": "fb4d7f0d772855837a51204f8f2eb7ca4f233094"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zinvapel/enumeration/zipball/1f6140ea1919dfc354a76e0949aa9327bdbc1759",
-                "reference": "1f6140ea1919dfc354a76e0949aa9327bdbc1759",
+                "url": "https://api.github.com/repos/zinvapel/enumeration/zipball/fb4d7f0d772855837a51204f8f2eb7ca4f233094",
+                "reference": "fb4d7f0d772855837a51204f8f2eb7ca4f233094",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.4"
+                "php": "^7.4 || ^8.0"
             },
             "type": "library",
             "autoload": {
@@ -45,7 +45,7 @@
                 "enum",
                 "enumeration"
             ],
-            "time": "2019-01-17T12:17:41+00:00"
+            "time": "2020-12-16T19:27:20+00:00"
         }
     ],
     "packages-dev": [
@@ -529,16 +529,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "0.12.59",
+            "version": "0.12.63",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "cf4107257c8ca2ad967efdd6a00f12b21acbb779"
+                "reference": "c97ec4754bd53099a06c24847bd2870b99966b6a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/cf4107257c8ca2ad967efdd6a00f12b21acbb779",
-                "reference": "cf4107257c8ca2ad967efdd6a00f12b21acbb779",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/c97ec4754bd53099a06c24847bd2870b99966b6a",
+                "reference": "c97ec4754bd53099a06c24847bd2870b99966b6a",
                 "shasum": ""
             },
             "require": {
@@ -581,7 +581,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-12-07T14:46:03+00:00"
+            "time": "2020-12-15T16:37:16+00:00"
         },
         {
             "name": "psr/cache",
@@ -2070,7 +2070,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7.4"
+        "php": "^7.4 || ^8.0"
     },
     "platform-dev": [],
     "plugin-api-version": "1.1.0"

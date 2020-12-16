@@ -50,9 +50,9 @@ final class GenerateDto implements ServiceDtoInterface
         return $this;
     }
 
-    public static function getConstraints(): Constraint
+    public static function getConstraints(): array
     {
-        return
+        return [
             new Assert\Collection([
                 'allowExtraFields' => true,
                 'fields' => [
@@ -68,6 +68,7 @@ final class GenerateDto implements ServiceDtoInterface
                         new Assert\Type('string')
                     ]),
                 ],
-            ]);
+            ])
+        ];
     }
 }

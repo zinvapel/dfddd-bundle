@@ -3,14 +3,25 @@
     "description": "Common classes for symfony service",
     "type": "symfony-bundle",
     "require": {
-        "php": "^7.4",
-        "zinvapel/enumeration": "^0.1.1"
+        "php": "^7.4 || ^8.0",
+        "zinvapel/enumeration": "^1.0.0"
     },
     "require-dev": {
         "phpstan/phpstan": "^0.12.59",
         "squizlabs/php_codesniffer": "^3.5",
         "sensiolabs/security-checker": "^6.0",
-        "symfony/symfony": "^5.2"
+        "symfony/serializer": "^5.0",
+        "symfony/yaml": "^5.0",
+        "symfony/dependency-injection": "^5.0",
+        "symfony/http-kernel": "^5.0",
+        "symfony/validator": "^5.0"
+    },
+    "suggest": {
+        "symfony/serializer": "If using as Symfony bundle",
+        "symfony/yaml": "If using as Symfony bundle",
+        "symfony/dependency-injection": "If using as Symfony bundle",
+        "symfony/http-kernel": "If using as Symfony bundle",
+        "symfony/validator": "If using as Symfony bundle"
     },
     "autoload": {
         "psr-4": {

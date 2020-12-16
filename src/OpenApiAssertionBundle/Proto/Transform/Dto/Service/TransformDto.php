@@ -27,9 +27,9 @@ final class TransformDto implements ServiceDtoInterface
         return $this;
     }
 
-    public static function getConstraints(): Constraint
+    public static function getConstraints(): array
     {
-        return
+        return [
             new Assert\Collection([
                 'allowExtraFields' => true,
                 'fields' => [
@@ -38,6 +38,7 @@ final class TransformDto implements ServiceDtoInterface
                         new Assert\Type(ProtoClassDto::class),
                     ]),
                 ],
-            ]);
+            ])
+        ];
     }
 }

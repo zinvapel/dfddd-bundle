@@ -1,39 +1,33 @@
 services:
-    zinvapel.open_api_assertion.proto.generate.service:
-        class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Service
+    _defaults:
+        public: false
+        autoconfigure: false
+        autowire: true
+
+    Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\GenerateProtoFromSchemaService:
         arguments:
-            -
+            $directors:
                 - '@zinvapel.open_api_assertion.proto.generate.director.request'
                 - '@zinvapel.open_api_assertion.proto.generate.director.response'
-            - '@zinvapel.open_api_assertion.proto.generate.join_strategy'
 
     zinvapel.open_api_assertion.proto.generate.director.request:
         class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Builder\Director
         arguments:
             - request
-            - '@zinvapel.open_api_assertion.proto.generate.builder'
+            - '@Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Builder\Builder'
             - '@zinvapel.open_api_assertion.proto.generate.builder.property.request'
-            - '@zinvapel.open_api_assertion.proto.generate.builder.assertion'
+            - '@Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Builder\AssertionBuilder\AssertionBuilder'
 
     zinvapel.open_api_assertion.proto.generate.director.response:
         class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Builder\Director
         arguments:
             - request
-            - '@zinvapel.open_api_assertion.proto.generate.builder'
+            - '@Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Builder\Builder'
             - '@zinvapel.open_api_assertion.proto.generate.builder.property.response'
-            - '@zinvapel.open_api_assertion.proto.generate.builder.assertion'
-
-    zinvapel.open_api_assertion.proto.generate.builder:
-        class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Builder\Builder
+            - '@Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Builder\AssertionBuilder\AssertionBuilder'
 
     zinvapel.open_api_assertion.proto.generate.builder.property.request:
         class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Builder\PropertyBuilder\Request
 
     zinvapel.open_api_assertion.proto.generate.builder.property.response:
         class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Builder\PropertyBuilder\Response
-
-    zinvapel.open_api_assertion.proto.generate.builder.assertion:
-        class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Builder\AssertionBuilder\AssertionBuilder
-
-    zinvapel.open_api_assertion.proto.generate.join_strategy:
-        class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Builder\NameJoinStrategy\CamelCase

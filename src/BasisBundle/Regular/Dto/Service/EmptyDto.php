@@ -9,8 +9,8 @@ use Zinvapel\Basis\BasisBundle\Core\Dto\ServiceDtoInterface;
 
 final class EmptyDto implements ServiceDtoInterface
 {
-    public static function getConstraints(): Constraint
+    public static function getConstraints(): array
     {
-        return new Assert\Valid();
+        return [new Assert\Valid()];
     }
 }

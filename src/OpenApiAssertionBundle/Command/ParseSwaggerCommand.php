@@ -9,27 +9,29 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Parser;
-use Zinvapel\Basis\BasisBundle\Core\ServiceInterface;
 use Zinvapel\Basis\OpenApiAssertionBundle\Proto\Dto\ProtoClassDto;
 use Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Dto\Service\GenerateDto;
 use Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Dto\Stateful\GenerationDto;
 use Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Enumeration\Target;
+use Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\GenerateProtoFromSchemaService;
 use Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\Dto\Stateful as Assert;
+use Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Assert\TransformProtoToAssertService;
 use Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\ClassString\Dto\Stateful as ClassString;
+use Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\ClassString\TransformProtoToClassService;
 use Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Dto\Service\TransformDto;
 
 final class ParseSwaggerCommand extends Command
 {
     private Parser $yamlParser;
-    private ServiceInterface $generateService;
-    private ServiceInterface $transformAssetService;
-    private ServiceInterface $transformClassService;
+    private GenerateProtoFromSchemaService $generateService;
+    private TransformProtoToAssertService $transformAssetService;
+    private TransformProtoToClassService $transformClassService;
 
     public function __construct(
         Parser $yamlParser,
-        ServiceInterface $generateService,
-        ServiceInterface $transformAssetService,
-        ServiceInterface $transformClassService
+        GenerateProtoFromSchemaService $generateService,
+        TransformProtoToAssertService $transformAssetService,
+        TransformProtoToClassService $transformClassService
     ) {
         parent::__construct();
 
@@ -47,7 +49,7 @@ final class ParseSwaggerCommand extends Command
             ->setName('zinvapel:oa:parse-swagger')
             ->addUsage(<<<TXT
 Usage:
-$ php bin/console <swagger.yaml> [--target <target> [--class <className>]]
+$ php bin/console zinvapel:oa:parse-swagger <swagger.yaml> [--target <target> [--class <className>]]
 Where:
 <swagger.yaml> - path to yaml file with swagger spec
 <target> - one of 'full', 'object', 'http'

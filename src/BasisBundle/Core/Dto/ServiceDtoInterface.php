@@ -7,5 +7,8 @@ use Symfony\Component\Validator\Constraint;
 
 interface ServiceDtoInterface
 {
-    public static function getConstraints(): Constraint;
+    /**
+     * @return Constraint[]
+     */
+    public static function getConstraints(): array;
 }

@@ -11,7 +11,7 @@ final class Target extends BaseEnumeration
     public const OBJECT = 'object';
     public const HTTP = 'http';
 
-    protected $names = [
+    protected array $names = [
         self::FULL => 'All classes from context',
         self::OBJECT => 'Concrete object',
         self::HTTP => 'Requests and responses',

@@ -29,19 +29,19 @@ final class Transformer implements TransformerInterface
     private function createPhpDoc(ProtoPropertyDto $protoPropertyDto): iterable
     {
         if ($protoPropertyDto->getArtifact()->getGroups()) {
-            yield "\t/**".PHP_EOL;
-            yield "\t * @Serializer\Groups({";
+            yield "        /**".PHP_EOL;
+            yield "         * @Serializer\Groups({";
             foreach ($protoPropertyDto->getArtifact()->getGroups() as $group) {
                 yield "\"$group\"";
             }
             yield "})".PHP_EOL;
             yield from $this->createVarDoc($protoPropertyDto);
-            yield "\t */".PHP_EOL;
+            yield "         */".PHP_EOL;
         } else {
             if ($protoPropertyDto->isCollection()) {
-                yield "\t/**".PHP_EOL;
+                yield "        /**".PHP_EOL;
                 yield from $this->createVarDoc($protoPropertyDto);
-                yield "\t */".PHP_EOL;
+                yield "         */".PHP_EOL;
             }
         }
     }
@@ -50,13 +50,13 @@ final class Transformer implements TransformerInterface
     {
         if ($protoPropertyDto->isCollection()) {
             if ($protoPropertyDto->isScalar()) {
-                yield "\t * @var ".$protoPropertyDto->getScalarType()."[]";
+                yield "         * @var ".$protoPropertyDto->getScalarType()."[]";
 
                 if ($protoPropertyDto->isNullable()) {
                     yield "|null";
                 }
             } else {
-                yield "\t * @var ".$protoPropertyDto->getObjectType()->getName()."[]";
+                yield "         * @var ".$protoPropertyDto->getObjectType()->getName()."[]";
 
                 if ($protoPropertyDto->isMultiple()) {
                     foreach ($protoPropertyDto->getOthers() as $other) {
@@ -75,7 +75,7 @@ final class Transformer implements TransformerInterface
 
     private function createProperty(ProtoPropertyDto $protoPropertyDto): iterable
     {
-        yield "\tprivate ";
+        yield "        private ";
 
         if ($protoPropertyDto->isNullable()) {
             yield '?';
@@ -98,7 +98,7 @@ final class Transformer implements TransformerInterface
 
     private function createMethods(ProtoPropertyDto $protoPropertyDto): iterable
     {
-        yield "\tpublic function set".ucfirst($protoPropertyDto->getName())."(";
+        yield "        public function set".ucfirst($protoPropertyDto->getName())."(";
 
         if ($protoPropertyDto->isNullable()) {
             yield '?';
@@ -122,18 +122,18 @@ final class Transformer implements TransformerInterface
             yield ' = null';
         }
         yield "): self".PHP_EOL;
-        yield "\t{".PHP_EOL;
-        yield "\t\t\$this->".$propName." = ".$propName.";".PHP_EOL;
+        yield "        {".PHP_EOL;
+        yield "                \$this->".$propName." = ".$propName.";".PHP_EOL;
         yield PHP_EOL;
-        yield "\t\treturn \$this;".PHP_EOL;
-        yield "\t}".PHP_EOL;
+        yield "                return \$this;".PHP_EOL;
+        yield "        }".PHP_EOL;
 
 
         yield PHP_EOL;
         if ($protoPropertyDto->getScalarType() !== 'bool') {
-            yield "\tpublic function get".ucfirst($protoPropertyDto->getName())."()";
+            yield "        public function get".ucfirst($protoPropertyDto->getName())."()";
         } else {
-            yield "\tpublic function ".lcfirst($protoPropertyDto->getName())."()";
+            yield "        public function ".lcfirst($protoPropertyDto->getName())."()";
         }
 
         if (!$protoPropertyDto->isMultiple()) {
@@ -157,9 +157,9 @@ final class Transformer implements TransformerInterface
         }
 
         yield PHP_EOL;
-        yield "\t{".PHP_EOL;
-        yield "\t\treturn \$this->".$propName.";".PHP_EOL;
-        yield "\t}".PHP_EOL;
+        yield "        {".PHP_EOL;
+        yield "                return \$this->".$propName.";".PHP_EOL;
+        yield "        }".PHP_EOL;
 
         yield PHP_EOL;
     }

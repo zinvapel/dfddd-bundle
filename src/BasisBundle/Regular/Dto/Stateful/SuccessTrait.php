@@ -9,6 +9,6 @@ trait SuccessTrait
 {
     public function getState(): State
     {
-        return State::create(State::SUCCESS);
+        return State::success();
     }
 }
