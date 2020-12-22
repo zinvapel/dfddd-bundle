@@ -4,9 +4,11 @@ services:
         autoconfigure: false
         autowire: true
 
-    Zinvapel\Basis\OpenApiAssertionBundle\:
+    Zinvapel\Basis\BasisBundle\:
         resource: '../../'
         exclude:
-            - '../../Command'
             - '../../DependencyInjection'
             - '../../Resources'
+            - '../../Regular/Dto'
+            - '../../Regular/ServiceDecorator'
+            - '../../Http/Flow'

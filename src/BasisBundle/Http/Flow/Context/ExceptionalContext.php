@@ -20,12 +20,10 @@ final class ExceptionalContext implements ContextInterface
 
     public function apply(ServiceInterface $service): StatefulDtoInterface
     {
-        $env = getenv('ZINVAPEL_BASIS_HTTP_FLOW_DEBUG');
-
         return
             new ExceptionDto(
                 $this->exception,
-                $env !== false || $this->exception instanceof PublicExceptionInterface
+                isset($_SERVER['ZINVAPEL_BASIS_HTTP_FLOW_DEBUG']) || $this->exception instanceof PublicExceptionInterface
             );
     }
 }

@@ -6,9 +6,10 @@ namespace Zinvapel\Basis\OpenApiAssertionBundle\Proto\Transform\Dto\Service;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 use Zinvapel\Basis\BasisBundle\Core\Dto\ServiceDtoInterface;
+use Zinvapel\Basis\BasisBundle\Core\Dto\Validatable;
 use Zinvapel\Basis\OpenApiAssertionBundle\Proto\Dto\ProtoClassDto;
 
-final class TransformDto implements ServiceDtoInterface
+final class TransformDto implements ServiceDtoInterface, Validatable
 {
     /**
      * @var ProtoClassDto[]

@@ -18,7 +18,8 @@ final class AssertionBuilder implements AssertionBuilderInterface
             $assertions[$protoProperty->getName()] = $this->createAsserts($protoProperty, $context);
 
             if ($protoProperty->isMultiple()) {
-                $assertions[$protoProperty->getName()] = [
+                $asserts = [];
+                $atLeastOneOf =
                     (new ProtoAssertDto())
                         ->setName('AtLeastOneOf')
                         ->setOptions(
@@ -42,8 +43,23 @@ final class AssertionBuilder implements AssertionBuilderInterface
                                         )
                                     )
                             ]
-                        )
-                ];
+                        );
+
+                if ($protoProperty->isCollection()) {
+                    $asserts = $this->createAsserts($protoProperty, $context);
+                    
+                    foreach ($asserts as $assert) {
+                        if ($assert->getName() === 'All') {
+                            $assert->setOptions([
+                                'proto_constraints' => [$atLeastOneOf],
+                            ]);
+                        }
+                    }
+                } else {
+                    $asserts[] = $atLeastOneOf;
+                }
+
+                $assertions[$protoProperty->getName()] = $asserts;
             }
         }
 
@@ -138,7 +154,7 @@ final class AssertionBuilder implements AssertionBuilderInterface
                     }
                     // @todo implement format
                     break;
-                case 'integer':
+                case 'int':
                 case 'float':
                     $asserts[] =
                         (new ProtoAssertDto())
@@ -175,23 +191,24 @@ final class AssertionBuilder implements AssertionBuilderInterface
                     ;
                     break;
                 case 'object':
-                    $options = ['name' => $protoProperty->getObjectType()->getName()];
+                    if ($protoProperty->getObjectType()->getName() === '\DateTime') {
 
-                    if (count($protoProperty->getObjectType()->getAssertions()) === 0) {
-                        $this->build($protoProperty->getObjectType(), $context, []);
+                        $asserts[] =
+                            (new ProtoAssertDto())
+                                ->setName('DateTime')
+                                ->setOptions(['format' => '\DateTime::RFC3339'])
+                        ;
+                    } else {
+                        $options = ['name' => $protoProperty->getObjectType()->getName()];
+
+                        if (count($protoProperty->getObjectType()->getAssertions()) === 0) {
+                            $this->build($protoProperty->getObjectType(), $context, []);
+                        }
+
+                        foreach ($protoProperty->getObjectType()->getAssertions() as $assertion) {
+                            $asserts[] = $assertion;
+                        }
                     }
-
-                    $asserts =
-                        array_merge(
-                            $protoProperty->getObjectType()->getAssertions(),
-                            $asserts
-                        );
-
-//                    $asserts[] =
-//                        (new ProtoAssertDto())
-//                            ->setName('RefObject')
-//                            ->setOptions($options)
-//                        ;
             }
         }
 

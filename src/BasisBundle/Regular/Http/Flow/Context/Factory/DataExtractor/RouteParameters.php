@@ -9,6 +9,16 @@ final class RouteParameters implements DataExtractorInterface
 {
     public function extract(Request $request): array
     {
-        return $request->attributes->get('_route_params', []);
+        $data = [];
+
+        foreach ($request->attributes->get('_route_params', []) as $key => $value) {
+            if (strpos(strtolower($key), 'id') !== false) {
+                $value = (int) $value;
+            }
+
+            $data[$key] = (int) $value;
+        }
+
+        return $data;
     }
 }

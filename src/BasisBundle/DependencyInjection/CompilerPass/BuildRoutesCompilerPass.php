@@ -12,11 +12,14 @@ use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Zinvapel\Basis\BasisBundle\Http\Flow\Controller;
+use Zinvapel\Basis\BasisBundle\Regular\Dto\Stateful\ExceptionDto;
 use Zinvapel\Basis\BasisBundle\Regular\Dto\Stateful\InvalidDto;
 use Zinvapel\Basis\BasisBundle\Regular\Dto\Stateful\NotFoundDto;
+use Zinvapel\Basis\BasisBundle\Regular\Dto\Stateful\ForbiddenDto;
 use Zinvapel\Basis\BasisBundle\Regular\Http\Flow\Context\Factory\DataExtractor\EmptyData;
 use Zinvapel\Basis\BasisBundle\Regular\Http\Flow\Context\Factory\DataExtractor\JsonBody;
 use Zinvapel\Basis\BasisBundle\Regular\Http\Flow\Context\Factory\DataExtractor\RouteParameters;
+use Zinvapel\Basis\BasisBundle\Regular\Http\Flow\Context\Factory\DataExtractor\Symfony\Get;
 use Zinvapel\Basis\BasisBundle\Regular\Http\Flow\Context\Factory\DataExtractor\Symfony\PostJson;
 use Zinvapel\Basis\BasisBundle\Regular\Http\Flow\Context\Factory\DenormalizeContextFactory;
 use Zinvapel\Basis\BasisBundle\Regular\Http\Flow\ResponseFactory\HeaderProvider\StaticKeyValue;
@@ -24,6 +27,8 @@ use Zinvapel\Basis\BasisBundle\Regular\Http\Flow\ResponseFactory\MappableWithFal
 use Zinvapel\Basis\BasisBundle\Regular\Http\Flow\ResponseFactory\NoContent;
 use Zinvapel\Basis\BasisBundle\Regular\Http\Flow\ResponseFactory\Predefined;
 use Zinvapel\Basis\BasisBundle\Regular\Http\Flow\ResponseFactory\Serialize;
+use Zinvapel\Basis\BasisBundle\Regular\ServiceDecorator\EventDispatch;
+use Zinvapel\Basis\BasisBundle\Regular\ServiceDecorator\Transactional;
 
 final class BuildRoutesCompilerPass implements CompilerPassInterface
 {
@@ -32,6 +37,18 @@ final class BuildRoutesCompilerPass implements CompilerPassInterface
         'empty' => EmptyData::class,
         'json' => JsonBody::class,
         'post_json' => PostJson::class,
+        'get' => Get::class,
+    ];
+    
+    private const DECORATOR_MAP = [
+        'transactional' => [
+            'class' => Transactional::class,
+            'args' => ['doctrine.orm.entity_manager']
+        ],
+        'event_dispatch' => [
+            'class' => EventDispatch::class,
+            'args' => ['event_dispatcher']
+        ],
     ];
 
     public function process(ContainerBuilder $container)
@@ -43,18 +60,18 @@ final class BuildRoutesCompilerPass implements CompilerPassInterface
 
     public function buildRoute(ContainerBuilder $container, string $name, array $config): void
     {
-        $container
-            ->setDefinition(
-                'basis.route.'.$name.'.controller',
-                new Definition(
-                    Controller::class,
-                    [
-                        $this->buildContextFactory($container, $config['context']),
-                        $container->getDefinition($config['service']),
-                        $this->buildResponseTransformer($container, $config['responses'])
-                    ]
-                )
+        $definition =
+            new Definition(
+                Controller::class,
+                [
+                    $this->buildContextFactory($container, $config['context']),
+                    $this->buildService($container, $config['service']),
+                    $this->buildResponseTransformer($container, $config['responses'])
+                ]
             );
+        $definition->setPublic(true);
+
+        $container->setDefinition('basis.route.'.$name.'.controller', $definition);
     }
 
     private function buildContextFactory(ContainerBuilder $container, $context): Definition
@@ -109,6 +126,31 @@ final class BuildRoutesCompilerPass implements CompilerPassInterface
                 throw new InvalidArgumentException("Context 'custom' does not exist");
         }
     }
+    
+    private function buildService(ContainerBuilder $container, array $config): Reference
+    {
+        $definition = $container->getDefinition($config['name']);
+
+        foreach ($config['decorators'] ?? [] as $decorator) {
+            $decoratorDefinition =
+                new Definition(
+                    self::DECORATOR_MAP[$decorator['type']]['class'],
+                    array_merge(
+                        array_map(
+                            fn (string $arg) => new Reference($arg),
+                            self::DECORATOR_MAP[$decorator['type']]['args']
+                        ),
+                        [
+                            new Reference($config['name'].'.decorator.'.$decorator['type'].'.inner'),
+                        ]
+                    )
+                );
+            $decoratorDefinition->setDecoratedService($config['name'], null, $config['priority'] ?? 0);
+            $container->setDefinition($config['name'].'.decorator.'.$decorator['type'], $decoratorDefinition);
+        }
+
+        return new Reference($config['name']);
+    }
 
     private function buildResponseTransformer(ContainerBuilder $container, array $responses): Definition
     {
@@ -127,6 +169,17 @@ final class BuildRoutesCompilerPass implements CompilerPassInterface
                         $context
                     ]
                 ),
+            ForbiddenDto::class =>
+                new Definition(
+                    Serialize::class,
+                    [
+                        $container->getDefinition('serializer'),
+                        $jsonHeader,
+                        'json',
+                        Response::HTTP_FORBIDDEN,
+                        $context
+                    ]
+                ),
             InvalidDto::class =>
                 new Definition(
                     Serialize::class,
@@ -135,6 +188,17 @@ final class BuildRoutesCompilerPass implements CompilerPassInterface
                         $jsonHeader,
                         'json',
                         Response::HTTP_BAD_REQUEST,
+                        $context
+                    ]
+                ),
+            ExceptionDto::class =>
+                new Definition(
+                    Serialize::class,
+                    [
+                        $container->getDefinition('serializer'),
+                        $jsonHeader,
+                        'json',
+                        Response::HTTP_INTERNAL_SERVER_ERROR,
                         $context
                     ]
                 ),

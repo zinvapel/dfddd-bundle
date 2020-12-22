@@ -14,7 +14,7 @@ final class BasisBundle extends Bundle
     {
         parent::build($container);
         
-        $container->addCompilerPass(new BuildRoutesCompilerPass(), PassConfig::TYPE_OPTIMIZE, -1000);
+        $container->addCompilerPass(new BuildRoutesCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);//, -1000);
     }
 
 }

@@ -15,5 +15,7 @@ final class BasisExtension extends Extension
         $loader = new YamlFileLoader($container, new FileLocator(\dirname(__DIR__).'/Resources/config'));
 
         $container->setParameter('basis', array_merge(...$configs));
+        
+        $loader->load('autowire.yaml');
     }
 }

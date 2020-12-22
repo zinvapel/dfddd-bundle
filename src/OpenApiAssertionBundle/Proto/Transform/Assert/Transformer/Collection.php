@@ -41,14 +41,14 @@ final class Collection implements TransformerInterface, TransformerAwareInterfac
                         yield $this->indent("'".$key."' => ", $indent+2);
 
                         $optional = false;
-                        foreach ($subProtos as $index => $subProto) {
-                            if ($index === -1) {
-                                yield 'new Assert\Optional(['.PHP_EOL;
-                                $optional = true;
-                            } elseif (!$optional && $index === 0) {
-                                yield '['.PHP_EOL;
-                            }
 
+                        if (!isset($subProtos[-1])) {
+                            yield 'new Assert\Optional(['.PHP_EOL;
+                            $optional = true;
+                        } else {
+                            yield '['.PHP_EOL;
+                        }
+                        foreach ($subProtos as $index => $subProto) {
                             yield from $this->transformer->transform($subProto, $indent+3);
 
                             yield ','.PHP_EOL;
@@ -79,6 +79,7 @@ final class Collection implements TransformerInterface, TransformerAwareInterfac
             case 'boolean':
                 yield $option ? 'true' : 'false';
                 break;
+            case 'int':
             case 'integer':
             case 'double':
                 yield (string) $option;

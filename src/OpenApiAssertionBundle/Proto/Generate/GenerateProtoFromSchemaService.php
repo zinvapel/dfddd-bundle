@@ -42,13 +42,17 @@ final class GenerateProtoFromSchemaService implements ServiceInterface
 
         foreach ($this->directors as $director) {
             foreach ($wrapper->getEndpoints() as $name => $endpoint) {
+                if ($dto->getTarget()->eq(Target::route()) && strcasecmp($dto->getObjectName(), $name) !== 0) {
+                    continue;
+                }
+
                 $buildContext =
                     new BuildContext(
                         $wrapper,
                         new Names(
                             explode(
                                 self::DELIMITER,
-                                preg_replace('/\W/u', self::DELIMITER, $name)
+                                preg_replace('/\W/u', self::DELIMITER, $name).'|'.$director->getName()
                             )
                         ),
                         $this->joinStrategy
@@ -66,6 +70,7 @@ final class GenerateProtoFromSchemaService implements ServiceInterface
                             $protoMaps[$director->getName()][$protoClass->getName()] = $protoClass;
                         }
                         break;
+                    case Target::ROUTE:
                     case Target::FULL:
                         $protoMaps = array_merge($protoMaps, $buildContext->getKnownObjects()->toArray());
                         break;

@@ -6,9 +6,10 @@ namespace Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Dto\Service;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 use Zinvapel\Basis\BasisBundle\Core\Dto\ServiceDtoInterface;
+use Zinvapel\Basis\BasisBundle\Core\Dto\Validatable;
 use Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Enumeration\Target;
 
-final class GenerateDto implements ServiceDtoInterface
+final class GenerateDto implements ServiceDtoInterface, Validatable
 {
     private array $schema;
     private Target $target;

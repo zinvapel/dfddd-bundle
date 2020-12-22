@@ -33,6 +33,7 @@ final class ExceptionDto implements StatefulDtoInterface
             ? [
                 'exception' => get_class($this->exception),
                 'message' => $this->exception->getMessage(),
+                'trace' => $this->exception->getTraceAsString(),
             ]
             : [];
     }

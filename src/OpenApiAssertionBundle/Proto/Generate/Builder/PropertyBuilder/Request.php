@@ -21,6 +21,11 @@ final class Request extends Base
                         $virtualProperty = $this->createProperty($schema['schema'], $context, true);
                         $properties = array_merge($properties, $virtualProperty->getObjectType()->getProperties());
                     }
+                    
+                    if ($virtualProperty->getOthers()) {
+                        // @todo
+                        fwrite(STDERR, '[ATTENTION] Other type of top layer '.$proto->getName().PHP_EOL);
+                    }
                     break;
                 case 'parameters':
                     foreach ($part as $parameter) {
@@ -31,7 +36,7 @@ final class Request extends Base
                             $this->createProperty(
                                 $parameter['schema'],
                                 $context,
-                                $parameter['required']
+                                !$parameter['required']
                             )
                         ;
 

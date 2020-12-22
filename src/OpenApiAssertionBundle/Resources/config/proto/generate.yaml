@@ -21,7 +21,7 @@ services:
     zinvapel.open_api_assertion.proto.generate.director.response:
         class: Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Builder\Director
         arguments:
-            - request
+            - response
             - '@Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Builder\Builder'
             - '@zinvapel.open_api_assertion.proto.generate.builder.property.response'
             - '@Zinvapel\Basis\OpenApiAssertionBundle\Proto\Generate\Builder\AssertionBuilder\AssertionBuilder'

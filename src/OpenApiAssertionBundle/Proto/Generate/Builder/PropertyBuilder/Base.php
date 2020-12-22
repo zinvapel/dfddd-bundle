@@ -19,11 +19,11 @@ abstract class Base implements PropertyBuilderInterface
     {
         $name = $context->getNames()->joinNames($context->getJoinStrategy());
 
-        if ($context->getKnownObjects()->containsKey($name)) {
-            return $context->getKnownObjects()->get($name);
-        }
+        $proto = new ProtoClassDto();
 
-        $context->getKnownObjects()->set($name, $proto = new ProtoClassDto());
+        if (!$context->getKnownObjects()->containsKey($name)) {
+            $context->getKnownObjects()->set($name, $proto);
+        }
 
         $properties = [];
 
@@ -34,7 +34,7 @@ abstract class Base implements PropertyBuilderInterface
                 $this->createProperty(
                     $property,
                     $context,
-                    in_array($propertyName, $schema['required'] ?? [], true)
+                    !in_array($propertyName, $schema['required'] ?? [], true)
                 );
 
             $context->getNames()->popName();
@@ -62,13 +62,34 @@ abstract class Base implements PropertyBuilderInterface
         if (isset($property['type'])) {
             switch ($property['type']) {
                 case 'string':
-                    $protoProp->setScalarType('string');
+                    if (isset($property['format'])) {
+                        switch ($property['format']) {
+                            case 'date-time':
+                                $protoProp
+                                    ->setScalar(false)
+                                    ->setScalarType('object')
+                                    ->setObjectType(
+                                        (new ProtoClassDto())
+                                            ->setName('\DateTime')
+                                    );
+
+                                break;
+                            default:
+                                $protoProp->setScalarType('string');
+
+                                break;
+                        }
+                    } else {
+                        $protoProp->setScalarType('string');
+                    }
+
                     break;
                 case 'number':
                     $protoProp->setScalarType('float');
                     break;
+                case 'int':
                 case 'integer':
-                    $protoProp->setScalarType('integer');
+                    $protoProp->setScalarType('int');
                     break;
                 case 'boolean':
                     $protoProp->setScalarType('bool');
@@ -86,19 +107,17 @@ abstract class Base implements PropertyBuilderInterface
                             ->setScalar($itemProp->isScalar())
                             ->setObjectType($itemProp->getObjectType())
                             ->setScalarType($itemProp->getScalarType())
+                            ->setOthers($itemProp->getOthers())
+                            ->setMultiple($itemProp->isMultiple())
                         ;
                     }
                     break;
                 case 'object':
-                    $context->getNames()->pushName('dto');
-
                     $protoProp
                         ->setScalar(false)
                         ->setObjectType($this->createClass($property, $context))
                         ->setScalarType('object')
                     ;
-
-                    $context->getNames()->popName();
                     break;
             }
         } else {
@@ -118,74 +137,54 @@ abstract class Base implements PropertyBuilderInterface
         ProtoPropertyDto $protoProp,
         BuildContext $context
     ): ProtoClassDto {
-        $context->getNames()->pushName('dto');
-
         if (isset($property['type'])) {
             // @todo
             if ($property['type'] !== 'object') {
                 throw new \RuntimeException("Non objects not allowed");
             }
-            $class = $this->createClass($property, $context);
-            $context->getNames()->popName();
-            return $class;
-        }
 
-        $ref = null;
+            return $this->createClass($property, $context);
+        }
 
         if (isset($property['$ref'])) {
             $ref = $context->getSchema()->getRef($property['$ref']);
-            if ($ref->getName() !== $property['$ref']) {
-                $context = $context->withNames(new Names([$ref->getName()]));
-            }
-            $property = $ref->getObject();
-        }
 
-        if ($ref !== null && isset($ref->getObject()['type'])) {
-            $class =
-                $this->createClass(
-                    $ref->getObject(),
-                    $context->withNames(new Names([$ref->getName()]))
-                );
-            $context->getNames()->popName();
-            return $class;
+            if ($ref->getName() !== $property['$ref']) { // schema/components object
+                return
+                    $this->createObjectProperty(
+                        $ref->getObject(),
+                        $protoProp,
+                        $context->withNames(new Names([$ref->getName()]))
+                    );
+            }
         }
 
         if (isset($property['allOf'])) {
             $allProperties = [];
+
             foreach ($property['allOf'] as $type => $data) {
-                if (isset($data['$ref'])) {
-                    $object = $this->createObjectProperty($data, $protoProp, $context);
-                } else {
-                    $context->getNames()->pushName((string) $type);
-                    $object = $this->createClass($data, $context);
-                    $context->getNames()->popName();
-                }
+                $object = $this->createObjectProperty($data, $protoProp, $context);
                 $allProperties = array_merge($allProperties, $object->getProperties());
             }
+
             $class =
                 $this->createClass(['properties' => []], $context)
                     ->setProperties($allProperties);
-            $context->getNames()->popName();
+            $context->getKnownObjects()->set($context->getNames()->joinNames($context->getJoinStrategy()), $class);
             return $class;
         } elseif (isset($property['oneOf'])) {
             $protoProp->setMultiple(true);
             $init = null;
 
             foreach ($property['oneOf'] as $type => $data) {
-                $context->getNames()->pushName((string) $type);
-                if (isset($data['$ref'])) {
-                    $object = $this->createObjectProperty($data, $protoProp, $context);
-                } else {
-                    $object = $this->createClass($data, $context);
-                }
+                $object = $this->createObjectProperty($data, $protoProp, $context);
+
                 if ($init === null) {
                     $init = $object;
                 } else {
                     $protoProp->addOther($object);
                 }
-                $context->getNames()->popName();
             }
-            $context->getNames()->popName();
 
             return $init;
         } elseif (isset($property['anyOf'])) {
@@ -193,20 +192,14 @@ abstract class Base implements PropertyBuilderInterface
             $init = null;
 
             foreach ($property['anyOf'] as $type => $data) {
-                $context->getNames()->pushName((string) $type);
-                if (isset($data['$ref'])) {
-                    $object = $this->createObjectProperty($data, $protoProp, $context);
-                } else {
-                    $object = $this->createClass($data, $context);
-                }
+                $object = $this->createObjectProperty($data, $protoProp, $context);
+
                 if ($init === null) {
                     $init = $object;
                 } else {
                     $protoProp->addOther($object);
                 }
-                $context->getNames()->popName();
             }
-            $context->getNames()->popName();
 
             return $init;
         }

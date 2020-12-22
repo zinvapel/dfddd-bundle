@@ -49,16 +49,18 @@ final class ParseSwaggerCommand extends Command
             ->setName('zinvapel:oa:parse-swagger')
             ->addUsage(<<<TXT
 Usage:
-$ php bin/console zinvapel:oa:parse-swagger <swagger.yaml> [--target <target> [--class <className>]]
+$ php bin/console zinvapel:oa:parse-swagger <swagger.yaml> [--target <target> [--class <className>]] [--output <dir>]
 Where:
 <swagger.yaml> - path to yaml file with swagger spec
 <target> - one of 'full', 'object', 'http'
 <className> - for target 'object'. Generate just this class
+<dir> - output to files
 TXT
             )
             ->addArgument('file', InputArgument::REQUIRED)
             ->addOption('target', 't', InputOption::VALUE_REQUIRED, '', Target::FULL)
             ->addOption('class', 'c', InputOption::VALUE_REQUIRED, '')
+            ->addOption('output', 'o', InputOption::VALUE_REQUIRED, '', null)
         ;
     }
 
@@ -79,7 +81,7 @@ TXT
                 (new GenerateDto())
                     ->setSchema($schema)
                     ->setTarget($target)
-                    ->setObjectName($target->eq(Target::object()) ? $input->getOption('class') : null)
+                    ->setObjectName($target->isObjectable() ? $input->getOption('class') : null)
             );
 
         if (!$generation->getState()->isSuccess()) {
@@ -93,10 +95,10 @@ TXT
             if ($target->eq(Target::http())) {
                 foreach ($generation->getProtoMaps() as $direction => $protoMaps) {
                     $output->writeln($direction.":");
-                    $this->transformProtoMaps($protoMaps, $output);
+                    $this->transformProtoMaps($protoMaps, $input, $output);
                 }
             } else {
-                $this->transformProtoMaps($generation->getProtoMaps(), $output);
+                $this->transformProtoMaps($generation->getProtoMaps(), $input, $output);
             }
         } catch (\Throwable $t) {
             $output->writeln($t->getMessage());
@@ -111,23 +113,18 @@ TXT
      * @param ProtoClassDto[] $protoMaps
      * @param OutputInterface $output
      */
-    private function transformProtoMaps(array $protoMaps, OutputInterface $output): void
+    private function transformProtoMaps(array $protoMaps, InputInterface $input, OutputInterface $output): void
     {
-        $transformation =
+        $transformationAssert =
             $this->transformAssetService->perform(
                 (new TransformDto())
                     ->setProtoClasses($protoMaps)
             );
 
-        if (!$transformation->getState()->isSuccess()) {
+        if (!$transformationAssert->getState()->isSuccess()) {
             throw new \Exception('Unable to transform to assert');
         }
-        /* @var Assert\TransformationDto $transformation */
-
-        foreach ($transformation->getAssertion() as $name => $assert) {
-            $output->writeln($name . ':');
-            $output->writeln($assert);
-        }
+        /* @var Assert\TransformationDto $transformationAssert */
 
         $transformation =
             $this->transformClassService->perform(
@@ -141,8 +138,37 @@ TXT
         /* @var ClassString\TransformationDto $transformation */
 
         foreach ($transformation->getClasses() as $name => $class) {
+            if ($dir = $input->getOption('output')) {
+                $resource = fopen($dir.$name.'.php', 'w');
+
+                fwrite($resource, substr($class, 0, strlen($class) - 2));
+                fwrite($resource, <<<TXT
+    public static function getConstraints(): array
+    {
+        return [
+
+TXT
+                );
+                fwrite(
+                    $resource,
+                    preg_replace(
+                        '/^(.*)$/m',
+                        '            $1',
+                        $transformationAssert->getAssertion()[$name]
+                    )
+                );
+                fwrite($resource, <<<TXT
+        
+        ];
+    }
+}
+TXT
+                );
+            } else {
             $output->writeln($name . ':');
             $output->writeln($class);
+            $output->writeln($transformationAssert->getAssertion()[$name]);
+            }
         }
     }
 }

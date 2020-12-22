@@ -16,6 +16,7 @@ final class WithOptions implements TransformerInterface
         'GreaterThanOrEqual',
         'LessThanOrEqual',
         'LessThan',
+        'DateTime',
     ];
 
     public function isAccept(ProtoAssertDto $protoAssert): bool
@@ -49,7 +50,11 @@ final class WithOptions implements TransformerInterface
     {
         switch (gettype($option)) {
             case 'string':
-                yield "'$option'";
+                if (strpos((string) $option, '\DateTime') === 0) {
+                    yield $option;
+                } else {
+                    yield "'$option'";
+                }
                 break;
             case 'boolean':
                 yield $option ? 'true' : 'false';

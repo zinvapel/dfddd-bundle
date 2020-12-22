@@ -28,33 +28,13 @@ final class BuildContext
         $this->knownObjects = new ArrayCollection();
     }
 
-    /**
-     * @todo refactor
-     */
-    public function __destruct()
-    {
-        if ($this->parent !== null) {
-            foreach ($this->getKnownObjects()->toArray() as $key => $value) {
-                if (!$this->parent->getKnownObjects()->containsKey($key)) {
-                    $this->parent->getKnownObjects()->set($key, $value);
-                }
-            }
-        }
-    }
-
     public function withNames(Names $names): BuildContext
     {
-        $copy =
+        return
             (new self($this->schema, $names, $this->joinStrategy))
                 ->setSerializationGroups($this->serializationGroups)
                 ->setParent($this)
             ;
-
-        foreach ($this->getKnownObjects()->toArray() as $key => $value) {
-            $copy->getKnownObjects()->set($key, $value);
-        }
-
-        return $copy;
     }
 
     public function getSchema(): SchemaWrapperDto
@@ -74,6 +54,10 @@ final class BuildContext
 
     public function getKnownObjects(): ArrayCollection
     {
+        if ($this->parent !== null) {
+            return $this->parent->getKnownObjects();
+        }
+
         return $this->knownObjects;
     }
 
