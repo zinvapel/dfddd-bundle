@@ -1,7 +1,7 @@
 services:
     _defaults:
         public: false
-        autoconfigure: false
+        autoconfigure: true
         autowire: true
 
     Zinvapel\Basis\BasisBundle\:
