@@ -69,7 +69,7 @@ final class Configuration implements ConfigurationInterface
                                         ->arrayPrototype()
                                             ->children()
                                                 ->enumNode('type')
-                                                    ->values(['transactional', 'event_dispatch'])
+                                                    ->values(['transactional', 'event_dispatch', 'strict_transactional'])
                                                     ->isRequired()
                                                 ->end()
                                                 ->integerNode('priority')->end()

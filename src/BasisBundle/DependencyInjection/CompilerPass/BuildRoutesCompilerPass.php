@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Zinvapel\Basis\BasisBundle\Http\Flow\Controller;
 use Zinvapel\Basis\BasisBundle\Regular\Dto\Stateful\ExceptionDto;
+use Zinvapel\Basis\BasisBundle\Regular\Dto\Stateful\FailedDto;
 use Zinvapel\Basis\BasisBundle\Regular\Dto\Stateful\InvalidDto;
 use Zinvapel\Basis\BasisBundle\Regular\Dto\Stateful\NotFoundDto;
 use Zinvapel\Basis\BasisBundle\Regular\Dto\Stateful\ForbiddenDto;
@@ -44,6 +45,11 @@ final class BuildRoutesCompilerPass implements CompilerPassInterface
         'transactional' => [
             'class' => Transactional::class,
             'args' => ['doctrine.orm.entity_manager']
+        ],
+        'strict_transactional' => [
+            'class' => Transactional::class,
+            'args' => ['doctrine.orm.entity_manager'],
+            'default_args' => [false],
         ],
         'event_dispatch' => [
             'class' => EventDispatch::class,
@@ -77,7 +83,7 @@ final class BuildRoutesCompilerPass implements CompilerPassInterface
     private function buildContextFactory(ContainerBuilder $container, $context): Definition
     {
         if (!class_exists($context['dto_class'])) {
-            throw new InvalidArgumentException(sprintf("Class does not exist '%s'", $context['dto']));
+            throw new InvalidArgumentException(sprintf("Class does not exist '%s'", $context['dto_class']));
         }
 
         $definition = new Definition();
@@ -142,7 +148,8 @@ final class BuildRoutesCompilerPass implements CompilerPassInterface
                         ),
                         [
                             new Reference($config['name'].'.decorator.'.$decorator['type'].'.inner'),
-                        ]
+                        ],
+                        self::DECORATOR_MAP[$decorator['type']]['default_args'] ?? []
                     )
                 );
             $decoratorDefinition->setDecoratedService($config['name'], null, $config['priority'] ?? 0);
@@ -181,6 +188,17 @@ final class BuildRoutesCompilerPass implements CompilerPassInterface
                     ]
                 ),
             InvalidDto::class =>
+                new Definition(
+                    Serialize::class,
+                    [
+                        $container->getDefinition('serializer'),
+                        $jsonHeader,
+                        'json',
+                        Response::HTTP_BAD_REQUEST,
+                        $context
+                    ]
+                ),
+            FailedDto::class =>
                 new Definition(
                     Serialize::class,
                     [

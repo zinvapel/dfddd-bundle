@@ -84,6 +84,7 @@ abstract class Base implements PropertyBuilderInterface
                     }
 
                     break;
+                case 'float':
                 case 'number':
                     $protoProp->setScalarType('float');
                     break;

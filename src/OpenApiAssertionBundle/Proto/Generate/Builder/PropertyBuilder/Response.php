@@ -16,6 +16,9 @@ final class Response extends Base
 
         foreach ($data['responses'] ?? [] as $status => $part) {
             foreach ($part['content'] ?? [] as $format => $schema) {
+                if ($format !== 'application/json') {
+                    continue;
+                }
                 $virtualProperty = $this->createProperty($schema['schema'], $context, true);
                 $properties = array_merge($properties, $virtualProperty->getObjectType()->getProperties());
                 
