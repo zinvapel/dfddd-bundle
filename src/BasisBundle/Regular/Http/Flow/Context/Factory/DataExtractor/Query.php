@@ -9,6 +9,14 @@ final class Query implements DataExtractorInterface
 {
     public function extract(Request $request): array
     {
-        return $request->query->all();
+        $parameters = $request->query->all();
+
+        foreach ($parameters as $name => $param) {
+            if (in_array($name, ['limit', 'offset'])) {
+                $parameters[$name] = (int) $param;
+            }
+        }
+
+        return $parameters;
     }
 }
