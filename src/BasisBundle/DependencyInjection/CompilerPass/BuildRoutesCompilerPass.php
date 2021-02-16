@@ -249,7 +249,13 @@ final class BuildRoutesCompilerPass implements CompilerPassInterface
         return
             $definition
                 ->setArgument(0, $map)
-                ->setArgument(1, new Definition(Predefined::class, [Response::HTTP_INTERNAL_SERVER_ERROR]))
+                ->setArgument(
+                    1,
+                    new Definition(
+                        Predefined::class,
+                        [Response::HTTP_INTERNAL_SERVER_ERROR, 'Unknown response type']
+                    )
+                )
             ;
     }
 }
