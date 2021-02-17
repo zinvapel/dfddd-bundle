@@ -9,7 +9,7 @@ use Zinvapel\Basis\BasisBundle\Regular\Http\Flow\Context\Factory\DataExtractor\R
 
 final class PostJson extends Composite
 {
-    public function __construct(RouteParameters $routeParameters, JsonBody $jsonBody)
+    public function __construct(Get $routeParameters, JsonBody $jsonBody)
     {
         parent::__construct([$routeParameters, $jsonBody]);
     }

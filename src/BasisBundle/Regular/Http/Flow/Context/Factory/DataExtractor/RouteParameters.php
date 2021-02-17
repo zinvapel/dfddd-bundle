@@ -16,7 +16,7 @@ final class RouteParameters implements DataExtractorInterface
                 $value = (int) $value;
             }
 
-            $data[$key] = (int) $value;
+            $data[$key] = $value;
         }
 
         return $data;
